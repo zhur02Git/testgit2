@@ -27,6 +27,7 @@ jobs:
             exit 1
           }
           Write-Host "✅ 回归测试1通过"
+          exit 0
 
       - name: 回归测试2 - 已知违规样本应该被拦截
         shell: pwsh
@@ -43,6 +44,7 @@ jobs:
             exit 1
           }
           Write-Host "✅ 回归测试2通过(正确拦截了违规样本)"
+          exit 0
 
       - name: 已知盲区样本 - 记录但不阻断
         shell: pwsh
@@ -55,3 +57,4 @@ jobs:
           '@ | Out-File -Encoding utf8 ci_test_edge.json
           .\check_feedback.ps1 -JsonFile ci_test_edge.json
           Write-Host "ℹ️  这是Day58已记录的已知盲区(单字'如'未被检测),此步骤仅作记录,不影响CI整体结果"
+          exit 0
