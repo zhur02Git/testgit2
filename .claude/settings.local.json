@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(hello)",
+      "Bash(node *)",
+      "WebSearch",
+      "Bash(powershell -Command \"Get-Content -Raw '.claude/agents/syntax-checker.md' | Format-Hex | Select-Object -First 10\")",
+      "PowerShell(.\\\\check_feedback.ps1 -JsonFile reviewer_output.json)"
+    ]
+  }
+}
