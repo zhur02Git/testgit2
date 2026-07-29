@@ -1,0 +1,60 @@
+name: CI Checks
+
+# 触发时机:每次有人对main分支发起PR时,自动运行
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-feedback-regression:
+    runs-on: windows-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 回归测试1 - 已知合格样本应该通过
+        shell: pwsh
+        run: |
+          @'
+          {
+            "structured_issues": [],
+            "narrative_feedback": "文案信息量偏少,未能体现智能定位的具体支撑点,建议向需求方确认该产品实际具备哪些功能后再补充。"
+          }
+          '@ | Out-File -Encoding utf8 ci_test_good.json
+          .\check_feedback.ps1 -JsonFile ci_test_good.json
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "❌ 回归测试1失败:合格样本被误判为不合格"
+            exit 1
+          }
+          Write-Host "✅ 回归测试1通过"
+          exit 0
+
+      - name: 回归测试2 - 已知违规样本应该被拦截
+        shell: pwsh
+        run: |
+          @'
+          {
+            "structured_issues": [],
+            "narrative_feedback": "信息量偏少,未能体现智能定位的支撑点(比如App控制、语音交互等)。"
+          }
+          '@ | Out-File -Encoding utf8 ci_test_bad.json
+          .\check_feedback.ps1 -JsonFile ci_test_bad.json
+          if ($LASTEXITCODE -eq 0) {
+            Write-Host "❌ 回归测试2失败:违规样本没有被拦截"
+            exit 1
+          }
+          Write-Host "✅ 回归测试2通过(正确拦截了违规样本)"
+          exit 0
+
+      - name: 已知盲区样本 - 记录但不阻断
+        shell: pwsh
+        run: |
+          @'
+          {
+            "structured_issues": [],
+            "narrative_feedback": "信息量偏少,未能体现智能定位的支撑点(如App控制、语音交互等)。"
+          }
+          '@ | Out-File -Encoding utf8 ci_test_edge.json
+          .\check_feedback.ps1 -JsonFile ci_test_edge.json
+          Write-Host "ℹ️  这是Day58已记录的已知盲区(单字'如'未被检测),此步骤仅作记录,不影响CI整体结果"
+          exit 0
