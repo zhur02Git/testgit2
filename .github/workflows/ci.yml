@@ -58,3 +58,15 @@ jobs:
           .\check_feedback.ps1 -JsonFile ci_test_edge.json
           Write-Host "ℹ️  这是Day58已记录的已知盲区(单字'如'未被检测),此步骤仅作记录,不影响CI整体结果"
           exit 0
+
+  security-permission-check:
+    runs-on: windows-latest
+    steps:
+      - name: 拉取代码
+        uses: actions/checkout@v4
+
+      - name: 运行权限自查(Day62)
+        shell: pwsh
+        run: |
+          .\security_check.ps1
+          exit $LASTEXITCODE
